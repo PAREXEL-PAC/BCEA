@@ -131,18 +131,19 @@ info.rank <- function(parameter, input, he, wtp = he$k[min(which(he$k >= he$ICER
   if (is.null(wtp)) {wtp = he$k[min(which(he$k >= he$ICER))]}
   
   if (class(parameter[1]) == "character") {
-    parameters <- array()
-    for (i in 1:length(parameter)) {
-      parameters[i] <- which(colnames(input) == parameter[i])
-    }
+    parameters <- unlist(
+      sapply(1:length(parameter), function(x) 
+        which(colnames(input) == parameter[x])))
   } else {
     parameters = parameter
   }
   parameter = colnames(input)[parameters]
   
   # needs to exclude parameters with weird behaviour (ie all 0s)
-  w <- unlist(lapply(parameter,function(x) which(colnames(input) == x)))
+  w <- unname(unlist(sapply(parameter,function(x) which(colnames(input) == x))))
   if (length(w) == 1) {
+    # nothing produced for a single parameter
+    return(NULL)
   } else {
     input <- input[,w]
     chk1 <- which(apply(input,2,var) > 0)   # only takes those with var>0
